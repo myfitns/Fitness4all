@@ -1,160 +1,56 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#121212" />
-  <link rel="manifest" href="manifest.json" />
-  <title>Fitness App</title>
-
-  <!-- iOS PWA Meta-Tags -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Fitness App" />
-  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #121212;
-      color: #ffffff;
-    }
-    header, footer {
-      text-align: center;
-      padding: 1em;
-      background-color: #1e1e1e;
-    }
-    .container {
-      padding: 1em;
-    }
-    .section {
-      margin-bottom: 2em;
-    }
-    .button {
-      display: block;
-      width: 100%;
-      padding: 1em;
-      margin: 0.5em 0;
-      background-color: #00c2ff;
-      color: #121212;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.1em;
-      font-weight: bold;
-    }
-    .workout-day {
-      margin-bottom: 1em;
-      padding: 1em;
-      background-color: #1e1e1e;
-      border-radius: 8px;
-    }
-    .hidden {
-      display: none;
-    }
-    #iosInstallHint {
-      display:none;
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      background: #00c2ff;
-      color: #121212;
-      padding: 15px;
-      border-radius: 10px;
-      font-weight: bold;
-      text-align: center;
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fit4You</title>
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+  <div class="container">
+    <h1>Fit4You</h1>
+    
+    <!-- Login -->
+    <div id="auth">
+      <input type="text" id="username" placeholder="Benutzername">
+      <input type="password" id="password" placeholder="Passwort">
+      <button onclick="login()">Login</button>
+    </div>
 
-<header>
-  <h1>Deine Fitness App</h1>
-</header>
+    <!-- Persönliche Daten -->
+    <div id="userdata" class="hidden">
+      <h2>Persönliche Daten</h2>
+      <input type="number" id="height" placeholder="Größe (cm)">
+      <input type="number" id="weight" placeholder="Gewicht (kg)">
+      <select id="gender">
+        <option value="">Geschlecht wählen</option>
+        <option value="m">Männlich</option>
+        <option value="w">Weiblich</option>
+      </select>
 
-<div class="container">
-  <div id="startScreen">
-    <h2>Ziele auswählen</h2>
-    <button class="button" onclick="selectGoal('abnehmen')">Abnehmen</button>
-    <button class="button" onclick="selectGoal('muskeln')">Muskelaufbau</button>
-    <button class="button" onclick="selectGoal('ausdauer')">Ausdauer</button>
+      <h3>Ziele</h3>
+      <label><input type="checkbox" value="Muskelaufbau"> Muskelaufbau</label><br>
+      <label><input type="checkbox" value="Ausdauer"> Ausdauer</label><br>
+      <label><input type="checkbox" value="Abnehmen"> Abnehmen</label><br>
+
+      <h3>Ruhetage pro Woche</h3>
+      <select id="restDays">
+        <option value="1">1</option>
+        <option value="2" selected>2</option>
+        <option value="3">3</option>
+      </select>
+
+      <button onclick="generatePlan()">Plan erstellen</button>
+    </div>
+
+    <!-- Trainingsplan -->
+    <div id="trainingPlan" class="hidden">
+      <h2>Dein 6-Wochen-Trainingsplan</h2>
+      <div id="calendar"></div>
+      <button onclick="extendPlan()">Training verlängern</button>
+    </div>
   </div>
 
-  <div id="workoutScreen" class="hidden">
-    <h2 id="goalTitle"></h2>
-    <div id="workoutPlan"></div>
-    <button class="button" onclick="resetApp()">Zurück</button>
-  </div>
-</div>
-
-<footer>
-  <p>&copy; 2025 Fitness App</p>
-</footer>
-
-<!-- iOS Install Hint Overlay -->
-<div id="iosInstallHint">
-  Für die beste Erfahrung auf iOS:<br/>
-  Tippe auf <strong>Teilen</strong> → <strong>Zum Home-Bildschirm</strong> hinzufügen.
-  <button style="margin-left:15px; padding: 5px 10px; font-weight: normal;" onclick="document.getElementById('iosInstallHint').style.display='none'">OK</button>
-</div>
-
-<script>
-  function isiOS() {
-    return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-  }
-
-  function isInStandaloneMode() {
-    return ('standalone' in window.navigator) && window.navigator.standalone;
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    if (isiOS() && !isInStandaloneMode()) {
-      document.getElementById('iosInstallHint').style.display = 'block';
-    }
-  });
-
-  const workouts = {
-    abnehmen: ["Montag: HIIT", "Dienstag: Cardio", "Mittwoch: Pause", "Donnerstag: Intervalltraining", "Freitag: Bodyweight", "Samstag: Joggen", "Sonntag: Yoga"],
-    muskeln: ["Montag: Brust & Trizeps", "Dienstag: Rücken & Bizeps", "Mittwoch: Beine", "Donnerstag: Schulter", "Freitag: Core", "Samstag: Ganzkörper", "Sonntag: Dehnung"],
-    ausdauer: ["Montag: Joggen", "Dienstag: Radfahren", "Mittwoch: Schwimmen", "Donnerstag: Laufband", "Freitag: Springseil", "Samstag: Hiking", "Sonntag: Pause"]
-  };
-
-  function selectGoal(goal) {
-    document.getElementById('startScreen').classList.add('hidden');
-    document.getElementById('workoutScreen').classList.remove('hidden');
-    document.getElementById('goalTitle').innerText = `Plan für: ${goal.charAt(0).toUpperCase() + goal.slice(1)}`;
-    const plan = workouts[goal];
-    const container = document.getElementById('workoutPlan');
-    container.innerHTML = '';
-    plan.forEach((day, i) => {
-      const div = document.createElement('div');
-      div.className = 'workout-day';
-      div.innerHTML = `<strong>${day}</strong>`;
-      container.appendChild(div);
-    });
-    localStorage.setItem('selectedGoal', goal);
-  }
-
-  function resetApp() {
-    localStorage.removeItem('selectedGoal');
-    document.getElementById('startScreen').classList.remove('hidden');
-    document.getElementById('workoutScreen').classList.add('hidden');
-  }
-
-  window.onload = () => {
-    const savedGoal = localStorage.getItem('selectedGoal');
-    if (savedGoal) selectGoal(savedGoal);
-  };
-
-  // Register service worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js');
-  }
-</script>
-
+  <script src="assets/js/app.js"></script>
 </body>
 </html>
