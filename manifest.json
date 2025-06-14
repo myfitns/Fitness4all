@@ -1,25 +1,42 @@
-{
-  "name": "Fitness App",
-  "short_name": "Fitness",
-  "start_url": "fitness_app_full_ios_ready.html",
-  "display": "standalone",
-  "background_color": "#121212",
-  "theme_color": "#121212",
-  "icons": [
-    {
-      "src": "icon-180.png",
-      "sizes": "180x180",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+body {
+  background-color: #121212;
+  color: white;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+}
+h1 {
+  color: #ffeb3b;
+}
+.container {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  background-color: #1e1e1e;
+  border-radius: 10px;
+}
+input, select, button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: none;
+  font-size: 16px;
+}
+button {
+  background-color: #ffeb3b;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+}
+.hidden {
+  display: none;
+}
+#calendar .day {
+  background: #222;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 6px;
 }
